@@ -1,6 +1,54 @@
 from urllib.request import Request, urlopen
 import json
+import datetime
+
+
+token = "107d2c3d3c8f5f695d9c9841571fd88a788769bd"
+
+
+def getData():
+	req = Request("https://api.todoist.com/rest/v1/tasks", 
+		headers={"Authorization": "Bearer {}".format(token)})
+
+	res = urlopen(req).read().decode()
+	result = json.loads(res)
+
+	return result
+
+
+def getTasks():
+	result = getData()
+	data = dict()
+
+	for r in result:
+		task, time = r["content"].split()
+
+		if len(time.split('h')) == 2:
+			totalTime = int(time.split('h')[0]) * 60
+
+			if time.split('h')[1] != '':
+				totalTime += int(time.split('h')[1])
+
+			data[task] = {"expect": totalTime, "actual": 0}
+
+	return data
+
+
+def getEvents():
+	result = getData()
+	data = dict()
+
+	for r in result:
+		task, time = r["content"].split()
+
+		if len(time.split(':')) == 2:
+			h, m = map(int, time.split(':'))
+
+			data[task] = {"expect": datetime.time(h,m,0), "actual": 0}
+
+	return data
 
 
 if __name__ == '__main__':
-	pass
+	print(getTasks())
+	print(getEvents())

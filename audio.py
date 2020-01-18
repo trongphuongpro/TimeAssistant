@@ -4,14 +4,6 @@ import pygame
 import pygame.mixer as audio
 
 
-notifications = ["It's time to sleep, sir", "Relax, please", "Good morning, sir"]
-
-months = ['January', 'February', 'March', 'April', 'May', 'June', 
-	'July', 'August', 'September', 'October', 'November', 'December']
-
-wdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-
-
 audio.init()
 
 def say(text, language='en'):
@@ -23,10 +15,15 @@ def say(text, language='en'):
 	fp.seek(0)
 	audio.music.load(fp)
 	audio.music.play()
+
 	while audio.music.get_busy():
 		pygame.time.Clock().tick(10)
 
 	fp.close()
+
+
+def alarm():
+	pass
 
 
 if __name__ == '__main__':
