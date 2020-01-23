@@ -1,16 +1,21 @@
+#! /home/ntppro/Work/pet/bin/python
+
 from urllib.request import Request, urlopen
 import json
 import datetime
 
 
 token = "107d2c3d3c8f5f695d9c9841571fd88a788769bd"
-
+ca_certificates = "/etc/ssl/certs"
 
 def getData():
 	req = Request("https://api.todoist.com/rest/v1/tasks", 
 		headers={"Authorization": "Bearer {}".format(token)})
 
-	res = urlopen(req).read().decode()
+	res = urlopen(req, capath=ca_certificates).read().decode()
+	with open("data.txt", "w") as f:
+		f.write(res)
+
 	result = json.loads(res)
 
 	return result
@@ -21,7 +26,7 @@ def getTasks():
 	data = dict()
 
 	for r in result:
-		task, time = r["content"].split()
+		task, time = r["content"].split(':')
 
 		if len(time.split('h')) == 2:
 			totalTime = int(time.split('h')[0]) * 60
@@ -39,10 +44,10 @@ def getEvents():
 	data = dict()
 
 	for r in result:
-		task, time = r["content"].split()
+		task, time = r["content"].split(':')
 
-		if len(time.split(':')) == 2:
-			h, m = map(int, time.split(':'))
+		if len(time.split('.')) == 2:
+			h, m = map(int, time.split('.'))
 
 			data[task] = {"expect": datetime.time(h,m,0), "actual": 0}
 
