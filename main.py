@@ -5,7 +5,7 @@ from datetime import date
 
 from interface import LCD1602
 #import audio
-from webapi import getTasks
+from webapi import getTasks, getEvents
 
 
 today = date.today().timetuple()
@@ -23,9 +23,31 @@ wdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Su
 #audio.say(greeting)
 
 while True:
-	for task in getTasks().keys():
+	tasks = getTasks()
+
+	for task, duration in tasks.items():
 		#audio.say(n)
 		display.clear()
-		display.setCursor(1,1)
-		display.print(task)
+		display.print("{}/{} min".format(duration["actual"], duration["expect"]), pos=(1,3))
+
+		# if the text's length is longer then 16 characters
+		if len(task) < 16:
+			display.print(task, pos=(2,1))
+		else:
+			for i in range(len(task)-15):
+				display.print(task[i:i+16], pos=(2,1))
+				time.sleep(0.1)
+
 		time.sleep(1)
+
+	events = getEvents()
+
+	for event, moment in events.items():
+		#audio.say(n)
+		display.clear()
+		display.print(event, pos=(2,1))
+		display.print("{}".format(moment["expect"])[0:-3], pos=(1,3))
+
+		time.sleep(1)
+
+	time.sleep(10)

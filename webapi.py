@@ -8,15 +8,20 @@ import datetime
 token = "107d2c3d3c8f5f695d9c9841571fd88a788769bd"
 ca_certificates = "/etc/ssl/certs"
 
+
 def getData():
 	req = Request("https://api.todoist.com/rest/v1/tasks", 
 		headers={"Authorization": "Bearer {}".format(token)})
 
-	res = urlopen(req, capath=ca_certificates).read().decode()
-	with open("data.txt", "w") as f:
-		f.write(res)
+	try:
+		res = urlopen(req, capath=ca_certificates).read().decode()
+		result = json.loads(res)
 
-	result = json.loads(res)
+	except:
+		result = []
+		
+	# with open("data.txt", "w") as f:
+	# 	f.write(res)
 
 	return result
 

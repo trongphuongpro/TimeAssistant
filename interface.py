@@ -76,7 +76,9 @@ class LCD1602:
 		self.sendData(ord(char))
 
 
-	def print(self, text):
+	def print(self, text, *, pos=(1, 1)):
+		self.setCursor(*pos)
+
 		for c in text:
 			self.putchar(c)
 
