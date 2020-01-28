@@ -28,16 +28,8 @@ while True:
 	for task, duration in tasks.items():
 		#audio.say(n)
 		display.clear()
-		display.print("{}/{} min".format(duration["actual"], duration["expect"]), pos=(1,3))
-
-		# if the text's length is longer then 16 characters
-		if len(task) < 16:
-			display.print(task, pos=(2,1))
-		else:
-			for i in range(len(task)-15):
-				display.print(task[i:i+16], pos=(2,1))
-				time.sleep(0.1)
-
+		display.print("{}/{} min".format(duration["actual"], duration["expect"]), pos=(2,3))
+		display.print(task, length=8, scroll=True, pos=(1,1))
 		time.sleep(1)
 
 	events = getEvents()
@@ -45,9 +37,8 @@ while True:
 	for event, moment in events.items():
 		#audio.say(n)
 		display.clear()
-		display.print(event, pos=(2,1))
-		display.print("{}".format(moment["expect"])[0:-3], pos=(1,3))
-
+		display.print("{}".format(moment["expect"])[0:-3], pos=(2,3))
+		display.print(event, length=8, scroll=True, pos=(1,1))
 		time.sleep(1)
 
 	time.sleep(10)

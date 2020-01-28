@@ -66,6 +66,7 @@ class LCD1602:
 	def setCursor(self, row, col):
 		address = (col-1) + (row-1) * 64
 		self.sendInstruction(address | 0x80)
+		time.sleep(0.1)
 
 
 	def clear(self):
@@ -76,11 +77,17 @@ class LCD1602:
 		self.sendData(ord(char))
 
 
-	def print(self, text, *, pos=(1, 1)):
-		self.setCursor(*pos)
-
-		for c in text:
-			self.putchar(c)
+	def print(self, text, *, pos=(1,1), length=16, scroll=False, delay=0.1):
+		if (len(text) <= length) or (scroll is False):
+			self.setCursor(*pos)
+			for c in text:
+				self.putchar(c)
+		else:
+			for i in range(len(text)-length+1):
+				self.setCursor(*pos)
+				for c in text[i:i+length]:
+					self.putchar(c)
+				time.sleep(delay)
 
 
 	def scrollLeft(self):
