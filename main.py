@@ -3,42 +3,68 @@
 import time
 from datetime import date
 
-from interface import LCD1602
+from interface import LCD1602, Selector
 #import audio
 from webapi import getTasks, getEvents
+import globalvars
+#audio.say(greeting)
+
+
+def up_callback(channel):
+	global index
+
+	if index < totalTasks-1:
+		globalvars.exitFlag = True
+		time.sleep(0.5)
+		index += 1
+		showInfo()
+
+
+def down_callback(channel):
+	global index
+
+	if index > 0:
+		globalvars.exitFlag = True
+		time.sleep(0.5)
+		index -= 1
+		showInfo()
+
+
+def select_callback(channel):
+	print("button [select] pressed")
+	print('Edge detected on channel {}'.format(channel))
+
+
+def showInfo():
+	globalvars.exitFlag = False
+
+	task, duration = tasks[index]
+	display.clear()
+	display.print("{}/{} min".format(duration["actual"], duration["expect"]), pos=(2,3))
+	display.print("{}/{}".format(index+1, totalTasks), length=5, scroll=False, pos=(1,14))
+	display.print(task, length=8, scroll=True, pos=(1,1))
 
 
 today = date.today().timetuple()
 
-display = LCD1602(en=17,rs=22,d4=25,d5=24,d6=23,d7=18)
+display = LCD1602(en=17,rs=22,d4=25,d5=24,d6=23,d7=27)
 
-greeting = "Welcome to time assistant."
-notifications = ["It's time to sleep, sir", "Relax, please", "Good morning, sir"]
+buttons = Selector(buttonUp=14, buttonDown=15, buttonSelect=18, 
+					up_callbackfunc=up_callback, 
+					down_callbackfunc=down_callback, 
+					select_callbackfunc=select_callback)
 
-months = ['January', 'February', 'March', 'April', 'May', 'June', 
-	'July', 'August', 'September', 'October', 'November', 'December']
-
-wdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-
-#audio.say(greeting)
+index = 0
 
 while True:
+	global tasks, events, option, totalTasks
+
 	tasks = getTasks()
-
-	for task, duration in tasks.items():
-		#audio.say(n)
-		display.clear()
-		display.print("{}/{} min".format(duration["actual"], duration["expect"]), pos=(2,3))
-		display.print(task, length=8, scroll=True, pos=(1,1))
-		time.sleep(1)
-
 	events = getEvents()
+	totalTasks = len(tasks)
+	
+	lastTime = time.time()
 
-	for event, moment in events.items():
-		#audio.say(n)
-		display.clear()
-		display.print("{}".format(moment["expect"])[0:-3], pos=(2,3))
-		display.print(event, length=8, scroll=True, pos=(1,1))
-		time.sleep(1)
-
-	time.sleep(10)
+	while time.time()-lastTime < 60:
+		showInfo()
+		time.sleep(5)

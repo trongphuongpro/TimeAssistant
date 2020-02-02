@@ -2,6 +2,7 @@
 
 import RPi.GPIO as GPIO
 import time
+import globalvars
 
 
 class LCD1602:
@@ -78,16 +79,23 @@ class LCD1602:
 
 
 	def print(self, text, *, pos=(1,1), length=16, scroll=False, delay=0.1):
-		if (len(text) <= length) or (scroll is False):
-			self.setCursor(*pos)
-			for c in text:
-				self.putchar(c)
-		else:
-			for i in range(len(text)-length+1):
+		if globalvars.exitFlag == False:
+			if (len(text) <= length) or (scroll is False):
 				self.setCursor(*pos)
-				for c in text[i:i+length]:
+				for c in text:
 					self.putchar(c)
-				time.sleep(delay)
+
+			else:
+				for i in range(len(text)-length+1):
+					if globalvars.exitFlag == True:
+						print("print broken")
+						break
+
+					self.setCursor(*pos)
+					for c in text[i:i+length]:
+						self.putchar(c)
+
+					time.sleep(delay)
 
 
 	def scrollLeft(self):
@@ -149,6 +157,25 @@ class LCD1602:
 		#self.__waitBusy()
 		time.sleep(0.01)
 
+
+class Selector:
+	def __init__(self, *, buttonUp, buttonDown, buttonSelect, 
+				up_callbackfunc, down_callbackfunc, select_callbackfunc):
+		self.buttonUp = buttonUp
+		self.buttonDown = buttonDown
+		self.buttonSelect = buttonSelect
+
+		GPIO.setmode(GPIO.BCM)
+		GPIO.setwarnings(False)
+
+		GPIO.setup(self.buttonUp, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+		GPIO.setup(self.buttonDown, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+		GPIO.setup(self.buttonSelect, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+
+		GPIO.add_event_detect(self.buttonUp, GPIO.FALLING, callback=up_callbackfunc, bouncetime=200)
+		GPIO.add_event_detect(self.buttonDown, GPIO.FALLING, callback=down_callbackfunc, bouncetime=200)
+		GPIO.add_event_detect(self.buttonSelect, GPIO.FALLING, callback=select_callbackfunc, bouncetime=200)
+		
 
 if __name__ == '__main__':
 	display = LCD1602(en=17,rs=22,d4=25,d5=24,d6=23,d7=18)

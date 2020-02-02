@@ -41,7 +41,7 @@ def getTasks():
 
 			data[task] = {"expect": totalTime, "actual": 0}
 
-	return data
+	return list(data.items())
 
 
 def getEvents():
@@ -56,7 +56,7 @@ def getEvents():
 
 			data[task] = {"expect": datetime.time(h,m,0), "actual": 0}
 
-	return data
+	return list(data.items())
 
 
 if __name__ == '__main__':
