@@ -11,23 +11,15 @@ import globalvars
 
 
 def up_callback(channel):
-	global index
-
-	if index < totalTasks-1:
+	if globalvars.index < totalTasks-1:
 		globalvars.exitFlag = True
-		time.sleep(0.5)
-		index += 1
-		showInfo()
+		globalvars.index += 1
 
 
 def down_callback(channel):
-	global index
-
-	if index > 0:
+	if globalvars.index > 0:
 		globalvars.exitFlag = True
-		time.sleep(0.5)
-		index -= 1
-		showInfo()
+		globalvars.index -= 1
 
 
 def select_callback(channel):
@@ -38,11 +30,21 @@ def select_callback(channel):
 def showInfo():
 	globalvars.exitFlag = False
 
-	task, duration = tasks[index]
+	task, duration = tasks[globalvars.index]
 	display.clear()
+
 	display.print("{}/{} min".format(duration["actual"], duration["expect"]), pos=(2,3))
-	display.print("{}/{}".format(index+1, totalTasks), length=5, scroll=False, pos=(1,14))
+	display.print("{}/{}".format(globalvars.index+1, totalTasks), pos=(1,14))
+
 	display.print(task, length=8, scroll=True, pos=(1,1))
+
+
+def delay(duration):
+	lastTime = time.time()
+
+	while time.time() - lastTime < duration:
+		if globalvars.exitFlag == True:
+			break
 
 
 today = date.today().timetuple()
@@ -54,7 +56,6 @@ buttons = Selector(buttonUp=14, buttonDown=15, buttonSelect=18,
 					down_callbackfunc=down_callback, 
 					select_callbackfunc=select_callback)
 
-index = 0
 
 while True:
 	global tasks, events, option, totalTasks
@@ -67,4 +68,4 @@ while True:
 
 	while time.time()-lastTime < 60:
 		showInfo()
-		time.sleep(5)
+		delay(5)

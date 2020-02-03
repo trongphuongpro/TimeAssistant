@@ -78,8 +78,8 @@ class LCD1602:
 		self.sendData(ord(char))
 
 
-	def print(self, text, *, pos=(1,1), length=16, scroll=False, delay=0.1):
-		if globalvars.exitFlag == False:
+	def print(self, text, *, pos=(1,1), length=16, scroll=False, delay=0.05):
+		if globalvars.exitFlag is False:
 			if (len(text) <= length) or (scroll is False):
 				self.setCursor(*pos)
 				for c in text:
@@ -87,8 +87,7 @@ class LCD1602:
 
 			else:
 				for i in range(len(text)-length+1):
-					if globalvars.exitFlag == True:
-						print("print broken")
+					if globalvars.exitFlag is True:
 						break
 
 					self.setCursor(*pos)
