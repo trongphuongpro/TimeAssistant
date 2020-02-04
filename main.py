@@ -14,6 +14,8 @@ def up_callback(channel):
 	global index, mode
 	mode = 0
 
+	totalTasks = len(tasks)
+
 	if index < totalTasks-1:
 		globalvars.exitFlag = True
 		index += 1
@@ -36,32 +38,53 @@ def select_callback(channel):
 
 
 def showInfo():
+	global index
+
 	print("showInfo")
 	globalvars.exitFlag = False
 
-	task, duration = tasks[index]
 	totalTasks = len(tasks)
-	display.clear()
 
-	display.print("{}/{} min".format(duration["actual"], duration["expect"]), pos=(2,3))
-	display.print("{}/{}".format(index+1, totalTasks), pos=(1,14))
-	display.print(task, length=8, scroll=True, pos=(1,1))
+	if index >= totalTasks and totalTasks > 0:
+		index = totalTasks-1
+
+	if totalTasks > 0:
+		task, info = tasks[index]
+
+		display.clear()
+		display.print("{}/{} min".format(info["actual"], info["expect"]), pos=(2,3))
+		display.print("{}/{}".format(index+1, totalTasks), pos=(1,14))
+		display.print(task, length=8, scroll=True, pos=(1,1))
+
+	else:
+		display.clear()
+		display.print("No task!")
 
 
 def showCoundown():
+	global index
+
 	print("showCoundown")
 	globalvars.exitFlag = False
 
-	task, duration = tasks[index]
-	display.clear()
+	totalTasks = len(tasks)
 
-	display.print("{}/{} min".format(duration["actual"], duration["expect"]), pos=(2,3))
-	display.print(task, length=16, scroll=True, pos=(1,1))
+	if index >= totalTasks and totalTasks > 0:
+		index = totalTasks-1
+
+	if totalTasks > 0:
+		task, info = tasks[index]
+
+		display.clear()
+		display.print("{}/{} min".format(info["actual"], info["expect"]), pos=(2,3))
+		display.print(task, length=16, scroll=True, pos=(1,1))
+	else:
+		display.clear()
+		display.print("No event!")
 
 
 def countdown():
 	tasks[index][1]["actual"] += 1
-
 
 
 def delay(duration):
@@ -93,12 +116,12 @@ while True:
 	lastTime = time.time()
 
 	if mode == 0:
-		while time.time() - lastTime < 60:
+		while time.time() - lastTime < 10:
 			if mode == 1:
 				break
 
 			showInfo()
-			delay(30)
+			delay(5)
 
 	elif mode == 1:
 		showCoundown()

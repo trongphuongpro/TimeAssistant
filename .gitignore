@@ -1,3 +1,4 @@
 sftp*
 *sublime*
+*.txt
 __pycache__/

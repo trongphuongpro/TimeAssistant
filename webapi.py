@@ -20,8 +20,8 @@ def getData():
 	except:
 		result = []
 		
-	# with open("data.txt", "w") as f:
-	# 	f.write(res)
+	with open("data.txt", "w") as f:
+		f.write(res)
 
 	return result
 
@@ -31,15 +31,18 @@ def getTasks():
 	data = dict()
 
 	for r in result:
-		task, time = r["content"].split(':')
+		try:
+			task, time = r["content"].split(':')
 
-		if len(time.split('h')) == 2:
-			totalTime = int(time.split('h')[0]) * 60
+			if len(time.split('h')) == 2:
+				totalTime = int(time.split('h')[0]) * 60
 
-			if time.split('h')[1] != '':
-				totalTime += int(time.split('h')[1])
+				if time.split('h')[1] != '':
+					totalTime += int(time.split('h')[1])
 
-			data[task] = {"expect": totalTime, "actual": 0}
+				data[task] = {"id": r["id"],"expect": totalTime, "actual": 0}
+		except:
+			pass
 
 	return list(data.items())
 
@@ -49,12 +52,16 @@ def getEvents():
 	data = dict()
 
 	for r in result:
-		task, time = r["content"].split(':')
+		try:
+			task, time = r["content"].split(':')
 
-		if len(time.split('.')) == 2:
-			h, m = map(int, time.split('.'))
+			if len(time.split('.')) == 2:
+				h, m = map(int, time.split('.'))
 
-			data[task] = {"expect": datetime.time(h,m,0), "actual": 0}
+				data[task] = {"id": r["id"], "expect": datetime.time(h,m,0), "actual": 0}
+
+		except:
+			pass
 
 	return list(data.items())
 
