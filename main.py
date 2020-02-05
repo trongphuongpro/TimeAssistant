@@ -2,7 +2,7 @@
 
 import time
 from datetime import date
-import json
+import pickle
 from enum import IntEnum
 from interface import LCD1602, Selector
 from webapi import getTasks, getEvents
@@ -50,7 +50,6 @@ def select_callback(channel):
 def showInfo():
 	global index
 
-	print("showInfo")
 	globalvars.exitFlag = False
 
 	totalTasks = len(taskRecord)
@@ -74,7 +73,6 @@ def showInfo():
 def showTrackingInfo():
 	global currentTask, mode
 
-	print("tracking")
 	globalvars.exitFlag = False
 
 	display.clear()
@@ -140,6 +138,10 @@ def updateRecord():
 			isTracking = False
 
 
+	with open("record.txt", "wb") as f:
+		pickle.dump(taskRecord, f)
+
+
 def execute():
 	updateRecord()
 
@@ -171,6 +173,11 @@ currentTask = 0
 taskRecord = {}
 isTracking = False
 
+try:
+	with open("record.txt", "rb") as f:
+		taskRecord = pickle.load(f)
+except Exception as e:
+	print(e)
 
 while True:
 	execute()

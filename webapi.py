@@ -20,8 +20,8 @@ def getData():
 	except:
 		result = []
 		
-	with open("data.txt", "w") as f:
-		f.write(res)
+	# with open("data.txt", "w") as f:
+	#  	json.dump(result, f)
 
 	return result
 
