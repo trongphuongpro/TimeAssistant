@@ -40,11 +40,11 @@ def getTasks():
 				if time.split('h')[1] != '':
 					totalTime += int(time.split('h')[1])
 
-				data[task] = {"id": r["id"],"expect": totalTime, "actual": 0}
+				data[r["id"]] = {"task": task, "expect": totalTime}
 		except:
 			pass
 
-	return list(data.items())
+	return data
 
 
 def getEvents():
@@ -58,12 +58,12 @@ def getEvents():
 			if len(time.split('.')) == 2:
 				h, m = map(int, time.split('.'))
 
-				data[task] = {"id": r["id"], "expect": datetime.time(h,m,0), "actual": 0}
+				data[r["id"]] = {"task": task, "expect": datetime.time(h,m,0)}
 
 		except:
 			pass
 
-	return list(data.items())
+	return data
 
 
 if __name__ == '__main__':
