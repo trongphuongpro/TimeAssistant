@@ -7,6 +7,7 @@ from enum import IntEnum
 from interface import LCD1602, Selector
 from webapi import getTasks, getEvents
 import globalvars
+from threading import Thread
 #import audio
 #audio.say(greeting)
 
@@ -39,12 +40,13 @@ def down_callback(channel):
 
 
 def select_callback(channel):
-	global mode, isTracking, currentTask
-	mode = Mode.tracking
+	if len(taskRecord) > 0:
+		global mode, isTracking, currentTask
+		mode = Mode.tracking
 
-	globalvars.exitFlag = True
-	isTracking = not isTracking
-	currentTask = list(taskRecord.keys())[index]
+		globalvars.exitFlag = True
+		isTracking = not isTracking
+		currentTask = list(taskRecord.keys())[index]
 
 
 def showInfo():
@@ -71,7 +73,7 @@ def showInfo():
 
 
 def showTrackingInfo():
-	global currentTask, mode
+	global currentTask
 
 	globalvars.exitFlag = False
 
@@ -90,21 +92,28 @@ def track():
 	global taskRecord
 
 	if isTracking and currentTask in taskRecord:
-		taskRecord[currentTask]["actual"] += 1
+		if delay(60) == 0:
+			taskRecord[currentTask]["actual"] += 1
+	else:
+		delay(1000)
 
 
-def delay(duration):
+def delay(duration, *, breakable=True):
 	lastTime = time.time()
 
 	while time.time() - lastTime < duration:
-		if globalvars.exitFlag == True:
-			break
+		if globalvars.exitFlag == True and breakable == True:
+			return -1
+	return 0
 
 
 def updateRecord():
 	global taskRecord, mode, isTracking
 
 	tasks = getTasks()
+
+	if tasks is None:
+		return
 
 	# if task record is empty
 	if len(taskRecord) == 0:
@@ -143,19 +152,29 @@ def updateRecord():
 
 
 def execute():
-	updateRecord()
+	if mode is Mode.normal:
+		showInfo()
+		delay(10)
 
-	lastTime = time.time()
+	elif mode is Mode.tracking:
+		showTrackingInfo()
+		track()
 
-	while time.time() - lastTime < 10:
-		if mode is Mode.normal:
-			showInfo()
-			delay(5)
 
-		elif mode is Mode.tracking:
-			showTrackingInfo()
-			track()
-			delay(5)
+def threadHelper():
+	global isThreadRunning
+
+	isThreadRunning = True
+
+	while isThreadRunning:
+		updateRecord()
+		delay(10, breakable=False)
+
+
+def stopThreading():
+	global isThreadRunning
+
+	isThreadRunning = False
 
 
 today = date.today().timetuple()
@@ -172,12 +191,16 @@ mode = Mode.normal
 currentTask = 0
 taskRecord = {}
 isTracking = False
+isThreadRunning = False
 
 try:
 	with open("record.txt", "rb") as f:
 		taskRecord = pickle.load(f)
 except Exception as e:
 	print(e)
+
+
+Thread(target=threadHelper).start()
 
 while True:
 	execute()

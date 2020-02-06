@@ -18,7 +18,7 @@ def getData():
 		result = json.loads(res)
 
 	except:
-		result = []
+		result = None
 		
 	# with open("data.txt", "w") as f:
 	#  	json.dump(result, f)
@@ -28,6 +28,10 @@ def getData():
 
 def getTasks():
 	result = getData()
+
+	if result is None:
+		return None
+
 	data = dict()
 
 	for r in result:
@@ -35,7 +39,7 @@ def getTasks():
 			task, time = r["content"].split(':')
 
 			if len(time.split('h')) == 2:
-				totalTime = int(time.split('h')[0]) * 60
+				totalTime = int(float(time.split('h')[0]) * 60)
 
 				if time.split('h')[1] != '':
 					totalTime += int(time.split('h')[1])
@@ -49,6 +53,10 @@ def getTasks():
 
 def getEvents():
 	result = getData()
+
+	if result is None:
+		return None
+
 	data = dict()
 
 	for r in result:
